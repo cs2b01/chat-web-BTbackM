@@ -4,6 +4,7 @@ from flask import Flask,render_template, request, session, Response, redirect
 from database import connector
 from model import entities
 import json
+import time
 
 db = connector.Manager()
 engine = db.createEngine()
@@ -131,20 +132,24 @@ def delete_message():
 @app.route('/authenticate', methods = ['POST'])
 def authenticate():
     #Get data form request
-    username = request.form['username']
-    password = request.form['password']
+    time.sleep(4)
+    message = json.loads(request.data)
+    username = message['username']
+    password = message['password']
 
     # Look in database
     db_session = db.getSession(engine)
 
     try:
-        users = db_session.query(entities.User
-            ).filter(entities.user.username==username
-            ).filter(entities.user.password==password
+        user = db_session.query(entities.User
+            ).filter(entities.User.username==username
+            ).filter(entities.User.password==password
             ).one()
-        return render_template("success.html")
-    except:
-        return render_template("fail.html")
+        message = {'message':'Authorized'}
+        return Response(message, status=200,mimetype='application/json')
+    except Exception:
+        message = {'message':'Unauthorized'}
+        return Response(message, status=401,mimetype='application/json')
 
 if __name__ == '__main__':
     app.secret_key = ".."

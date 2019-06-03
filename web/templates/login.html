@@ -12,8 +12,6 @@
     <link rel="stylesheet" type="text/css" href="styles.css" />
 </head>
 <body>
-    <form method="POST" action="/authenticate" name="formulario">
-      <div>
         <table>
           <tr>
             <td>Username</td>
@@ -24,10 +22,33 @@
             <td><input type="password" name="password" id="password"/></td>
           </tr>
           <tr>
-            <td colspan="10"><input type="submit" value="Login" onclick="getData()"/></td>
+            <td colspan="10"><input type="button" value="Login" onclick="getData()"/></td>
           </tr>
         </table>
-      </div>
-    </form>
+        <label id="action">Waiting for user</label>
+        <script>
+          function getData(){
+            $('#action').html("Waiting...");
+            var username = $('#username').val();
+            var password = $('#password').val();
+            var message = JSON.stringify({
+              "username": username,
+              "password": password
+            });
+            $.ajax({
+              url:'/authenticate',
+              type:'POST',
+              contentType: 'application/json',
+              data: message,
+              dataType:'json',
+              success: function(response){
+                $('#action').html(response['statusText']);
+              },
+              error: function(response){
+                $('#action').html(response['statusText']);
+              }
+            });
+          }
+      </script>
 </body>
 </html>
